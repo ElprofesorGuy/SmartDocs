@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SmartDocs.Views.UploadPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:SmartDocs.Controls"
+             xmlns:helpers="clr-namespace:SmartDocs.Helpers"
+             BackgroundColor="{StaticResource AppBackground}"
+             Shell.NavBarIsVisible="False">
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Barre supérieure -->
+        <Grid Style="{StaticResource TopBar}" ColumnDefinitions="48,*,48" HeightRequest="60">
+            <Label Text="{x:Static helpers:Icons.ArrowBack}" Style="{StaticResource Icon}" TextColor="{StaticResource TextPrimary}">
+                <Label.GestureRecognizers><TapGestureRecognizer Tapped="OnBackTapped" /></Label.GestureRecognizers>
+            </Label>
+            <Label Grid.Column="1" Text="Déposer un document" Style="{StaticResource TitleMd}" FontSize="18"
+                   HorizontalTextAlignment="Center" VerticalOptions="Center" />
+            <Label Grid.Column="2" Text="{x:Static helpers:Icons.HelpOutline}" Style="{StaticResource Icon}" TextColor="{StaticResource TextPrimary}">
+                <Label.GestureRecognizers><TapGestureRecognizer Tapped="OnHelpTapped" /></Label.GestureRecognizers>
+            </Label>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16,16,16,24" Spacing="16">
+
+                <!-- Zone de dépôt -->
+                <Border BackgroundColor="#EFF6FF" Stroke="#93C5FD" StrokeThickness="1.5" StrokeDashArray="4,4"
+                        StrokeShape="RoundRectangle 16" Padding="16,28">
+                    <VerticalStackLayout Spacing="14" HorizontalOptions="Center">
+                        <Border WidthRequest="56" HeightRequest="56" BackgroundColor="White" StrokeThickness="0" StrokeShape="RoundRectangle 28" HorizontalOptions="Center">
+                            <Label Text="{x:Static helpers:Icons.CloudUpload}" Style="{StaticResource Icon}" TextColor="{StaticResource Primary}" FontSize="30" />
+                        </Border>
+                        <Label Text="Glissez votre fichier ici ou" FontFamily="InterSemiBold" HorizontalTextAlignment="Center" />
+                        <controls:AppButton Text="Parcourir les fichiers" Variant="OutlinePrimary" Compact="True" WidthRequest="190"
+                                            HorizontalOptions="Center" Clicked="OnBrowseClicked" />
+                        <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                            <Label HorizontalTextAlignment="Center" FontSize="13">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="Formats acceptés : " />
+                                        <Span Text="PDF, DOCX, XLSX" FontFamily="InterSemiBold" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                            <Label Text="Taille maximale : 10 Mo" Style="{StaticResource Caption}" FontFamily="InterMedium" HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Fichier sélectionné -->
+                <VerticalStackLayout x:Name="SelectedSection" Spacing="8" IsVisible="False">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="FICHIER SÉLECTIONNÉ" Style="{StaticResource SectionLabel}" VerticalOptions="Center" />
+                        <HorizontalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="{x:Static helpers:Icons.CheckCircle}" Style="{StaticResource Icon}" TextColor="{StaticResource Success}" FontSize="16" />
+                            <Label Text="Prêt" TextColor="{StaticResource Success}" FontFamily="InterSemiBold" FontSize="12" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Grid>
+                    <Border Style="{StaticResource Card}">
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="Auto,*,36" ColumnSpacing="12">
+                                <controls:FileTile x:Name="PickedTile" WidthRequest="48" HeightRequest="48" VerticalOptions="Center" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label x:Name="PickedName" Style="{StaticResource TitleSm}" LineBreakMode="MiddleTruncation" MaxLines="1" />
+                                    <HorizontalStackLayout Spacing="6">
+                                        <Label x:Name="PickedSize" Style="{StaticResource Caption}" />
+                                        <Label Text="•" Style="{StaticResource Caption}" />
+                                        <Label x:Name="PickedStatus" TextColor="{StaticResource Success}" FontFamily="InterMedium" FontSize="12" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                                <Label Grid.Column="2" Text="{x:Static helpers:Icons.Close}" Style="{StaticResource Icon}" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center">
+                                    <Label.GestureRecognizers><TapGestureRecognizer Tapped="OnClearFile" /></Label.GestureRecognizers>
+                                </Label>
+                            </Grid>
+                            <ProgressBar x:Name="UploadProgress" Progress="0" HeightRequest="6" />
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Formulaire -->
+                <Border Style="{StaticResource Card}" Padding="18">
+                    <VerticalStackLayout Spacing="18">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Nom du document" Style="{StaticResource TitleSm}" />
+                            <Border x:Name="NameBorder" Style="{StaticResource Field}">
+                                <Grid ColumnDefinitions="*,44">
+                                    <Entry x:Name="NameEntry" Margin="8,0,0,0" Placeholder="Nom du document" />
+                                    <Label Grid.Column="1" Text="{x:Static helpers:Icons.Edit}" Style="{StaticResource Icon}" FontSize="20" InputTransparent="True" />
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Catégorie" Style="{StaticResource TitleSm}" />
+                            <Border Style="{StaticResource Field}">
+                                <Grid ColumnDefinitions="*,44">
+                                    <Picker x:Name="CategoryPicker" Margin="8,0,0,0" Title="Choisir une catégorie" />
+                                    <Label Grid.Column="1" Text="{x:Static helpers:Icons.ExpandMore}" Style="{StaticResource Icon}" FontSize="22" InputTransparent="True" />
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="Niveau de confidentialité &amp; Tags" Style="{StaticResource TitleSm}" />
+
+                            <Border x:Name="ConfBadge" BackgroundColor="{StaticResource AccentLight}" Stroke="{StaticResource AccentBorder}" StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 16" Padding="12,6" HorizontalOptions="Start">
+                                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnConfidentialityTapped" /></Border.GestureRecognizers>
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label x:Name="ConfIcon" Text="{x:Static helpers:Icons.Lock}" Style="{StaticResource Icon}" TextColor="{StaticResource Primary}" FontSize="15" />
+                                    <Label x:Name="ConfLabel" Text="Interne" TextColor="{StaticResource Primary}" FontFamily="InterSemiBold" FontSize="13" VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </Border>
+
+                            <FlexLayout x:Name="TagsLayout" Wrap="Wrap" Direction="Row" AlignItems="Start" JustifyContent="Start">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <Border BackgroundColor="#E0E7FF" StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="12,6" Margin="0,0,8,8">
+                                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnTagTapped" /></Border.GestureRecognizers>
+                                            <Label Text="{Binding .}" TextColor="{StaticResource PrimaryDark}" FontFamily="InterMedium" FontSize="13" />
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </FlexLayout>
+
+                            <Border Style="{StaticResource Field}" HeightRequest="44">
+                                <Entry x:Name="TagEntry" Margin="8,0" Placeholder="Ajouter un tag (ex. Gouvernance) puis valider" ReturnType="Done" Completed="OnTagCompleted" />
+                            </Border>
+                            <Label Text="Touchez le niveau pour le changer, un tag pour le retirer." Style="{StaticResource Caption}" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label x:Name="ErrorLabel" IsVisible="False" TextColor="{StaticResource Danger}" FontSize="12" />
+
+                <controls:AppButton Text="Publier le document" Glyph="{x:Static helpers:Icons.FileUpload}" Clicked="OnPublishClicked" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>
