@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Palette issue de DESIGN.md / maquettes Stitch -->
+    <Color x:Key="Primary">#2563EB</Color>
+    <Color x:Key="PrimaryStrong">#004AC6</Color>
+    <Color x:Key="PrimaryDark">#1E3A8A</Color>
+    <Color x:Key="AccentLight">#EFF6FF</Color>
+    <Color x:Key="AccentBorder">#BFDBFE</Color>
+    <Color x:Key="AppBackground">#F8F9FF</Color>
+    <Color x:Key="Surface">#FFFFFF</Color>
+    <Color x:Key="TextPrimary">#0F172A</Color>
+    <Color x:Key="TextSecondary">#64748B</Color>
+    <Color x:Key="BorderColor">#CBD5E1</Color>
+    <Color x:Key="Success">#16A34A</Color>
+    <Color x:Key="SuccessBg">#DCFCE7</Color>
+    <Color x:Key="Danger">#DC2626</Color>
+    <Color x:Key="DangerBg">#FEE2E2</Color>
+    <Color x:Key="NeutralBg">#F1F5F9</Color>
+
+</ResourceDictionary>
