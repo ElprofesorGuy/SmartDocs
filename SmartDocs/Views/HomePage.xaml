@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SmartDocs.Views.HomePage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:SmartDocs.Controls"
+             xmlns:helpers="clr-namespace:SmartDocs.Helpers"
+             xmlns:models="clr-namespace:SmartDocs.Models"
+             BackgroundColor="{StaticResource AppBackground}"
+             Shell.NavBarIsVisible="False">
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- En-tête -->
+        <Grid Style="{StaticResource TopBar}" ColumnDefinitions="48,*,Auto" ColumnSpacing="4" HeightRequest="64">
+            <Label Text="{x:Static helpers:Icons.Menu}" Style="{StaticResource Icon}" TextColor="{StaticResource TextPrimary}">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnMenuTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+            <Label Grid.Column="1" Text="SmartDocs" FontFamily="InterBold" FontSize="20" TextColor="{StaticResource PrimaryStrong}" VerticalOptions="Center" />
+            <HorizontalStackLayout Grid.Column="2" Spacing="10" Margin="0,0,8,0" VerticalOptions="Center">
+                <VerticalStackLayout VerticalOptions="Center" Spacing="0">
+                    <Label x:Name="GreetingLabel" Text="Bonjour, Alexandre" FontFamily="InterSemiBold" FontSize="14" HorizontalTextAlignment="End" />
+                    <Label x:Name="DepartmentLabel" Text="Département RH" Style="{StaticResource Caption}" HorizontalTextAlignment="End" />
+                </VerticalStackLayout>
+                <Grid WidthRequest="44" HeightRequest="44">
+                    <Border WidthRequest="40" HeightRequest="40" BackgroundColor="#DBEAFE" Stroke="White" StrokeThickness="2"
+                            StrokeShape="RoundRectangle 20" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label x:Name="AvatarLabel" Text="AM" FontFamily="InterBold" FontSize="14" TextColor="{StaticResource PrimaryStrong}"
+                               HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                    </Border>
+                    <BoxView WidthRequest="10" HeightRequest="10" CornerRadius="5" Color="{StaticResource Primary}"
+                             HorizontalOptions="End" VerticalOptions="Start" Margin="0,2,2,0" />
+                </Grid>
+            </HorizontalStackLayout>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16,12,16,24" Spacing="24">
+
+                <!-- Recherche -->
+                <Border Style="{StaticResource Field}" HeightRequest="48">
+                    <Grid ColumnDefinitions="44,*,44">
+                        <Label Text="{x:Static helpers:Icons.Search}" Style="{StaticResource Icon}" FontSize="22" />
+                        <Entry x:Name="SearchEntry" Grid.Column="1" Placeholder="Rechercher un document, un contrat, une facture…"
+                               ReturnType="Search" Completed="OnSearchCompleted" />
+                        <Label Grid.Column="2" Text="{x:Static helpers:Icons.Tune}" Style="{StaticResource Icon}" FontSize="22">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnSearchIconTapped" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+                </Border>
+
+                <!-- Accès rapide -->
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Accès rapide" Style="{StaticResource TitleSm}" FontSize="15" />
+                        <Label Grid.Column="1" Text="4 raccourcis" Style="{StaticResource Caption}" FontFamily="InterMedium" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
+                        <!-- Documents -->
+                        <Border Style="{StaticResource Card}" Padding="14">
+                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnDocumentsTapped" /></Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="14">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Border WidthRequest="40" HeightRequest="40" BackgroundColor="{StaticResource AccentLight}" StrokeThickness="0" StrokeShape="RoundRectangle 10" HorizontalOptions="Start">
+                                        <Label Text="{x:Static helpers:Icons.Folder}" Style="{StaticResource Icon}" TextColor="{StaticResource Primary}" />
+                                    </Border>
+                                    <controls:Badge x:Name="DocsCountBadge" Grid.Column="1" HorizontalOptions="End" VerticalOptions="Start"
+                                                    Text="0" TextColor="{StaticResource PrimaryStrong}" BackgroundColor="#E0E7FF" />
+                                </Grid>
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="Documents" Style="{StaticResource TitleMd}" />
+                                    <Label Text="Espace partagé" Style="{StaticResource Caption}" FontSize="13" />
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Déposer -->
+                        <Border Grid.Column="1" Style="{StaticResource Card}" Padding="14">
+                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnUploadTapped" /></Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="14">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Border WidthRequest="40" HeightRequest="40" BackgroundColor="{StaticResource AccentLight}" StrokeThickness="0" StrokeShape="RoundRectangle 10" HorizontalOptions="Start">
+                                        <Label Text="{x:Static helpers:Icons.CloudUpload}" Style="{StaticResource Icon}" TextColor="{StaticResource Primary}" />
+                                    </Border>
+                                    <controls:Badge Grid.Column="1" HorizontalOptions="End" VerticalOptions="Start"
+                                                    Text="+ Nouveau" TextColor="White" BackgroundColor="{StaticResource Primary}" />
+                                </Grid>
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="Déposer" Style="{StaticResource TitleMd}" />
+                                    <Label Text="Import rapide" Style="{StaticResource Caption}" FontSize="13" />
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Archives -->
+                        <Border Grid.Row="1" Style="{StaticResource Card}" Padding="14">
+                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnArchivesTapped" /></Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="14">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Border WidthRequest="40" HeightRequest="40" BackgroundColor="{StaticResource AccentLight}" StrokeThickness="0" StrokeShape="RoundRectangle 10" HorizontalOptions="Start">
+                                        <Label Text="{x:Static helpers:Icons.Archive}" Style="{StaticResource Icon}" TextColor="{StaticResource Primary}" />
+                                    </Border>
+                                    <controls:Badge x:Name="ArchivesCountBadge" Grid.Column="1" HorizontalOptions="End" VerticalOptions="Start"
+                                                    Text="0" TextColor="{StaticResource TextSecondary}" BackgroundColor="{StaticResource NeutralBg}" />
+                                </Grid>
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="Archives" Style="{StaticResource TitleMd}" />
+                                    <Label Text="Stockage légal" Style="{StaticResource Caption}" FontSize="13" />
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Versions -->
+                        <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource Card}" Padding="14">
+                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnVersionsTapped" /></Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="14">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Border WidthRequest="40" HeightRequest="40" BackgroundColor="{StaticResource AccentLight}" StrokeThickness="0" StrokeShape="RoundRectangle 10" HorizontalOptions="Start">
+                                        <Label Text="{x:Static helpers:Icons.ForkRight}" Style="{StaticResource Icon}" TextColor="{StaticResource Primary}" />
+                                    </Border>
+                                    <controls:Badge x:Name="VersionsCountBadge" Grid.Column="1" HorizontalOptions="End" VerticalOptions="Start"
+                                                    Text="0" TextColor="{StaticResource TextSecondary}" BackgroundColor="{StaticResource NeutralBg}" />
+                                </Grid>
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="Versions" Style="{StaticResource TitleMd}" />
+                                    <Label Text="Historique actif" Style="{StaticResource Caption}" FontSize="13" />
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+                </VerticalStackLayout>
+
+                <!-- Documents récents -->
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Documents récents" Style="{StaticResource TitleSm}" FontSize="15" VerticalOptions="Center" />
+                        <HorizontalStackLayout Grid.Column="1" Spacing="2">
+                            <HorizontalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnDocumentsTapped" />
+                            </HorizontalStackLayout.GestureRecognizers>
+                            <Label Text="Voir tout" Style="{StaticResource Link}" FontSize="12" VerticalOptions="Center" />
+                            <Label Text="{x:Static helpers:Icons.ArrowForward}" Style="{StaticResource Icon}" TextColor="{StaticResource Primary}" FontSize="14" />
+                        </HorizontalStackLayout>
+                    </Grid>
+
+                    <VerticalStackLayout x:Name="RecentsLayout" Spacing="10">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:DocumentItem">
+                                <Border Style="{StaticResource Card}" Padding="12">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnRecentTapped" />
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="Auto,*,36" ColumnSpacing="12">
+                                        <controls:FileTile Glyph="{Binding FileGlyph}" Fg="{Binding FileColor}" Bg="{Binding FileBg}"
+                                                           Ext="{Binding ExtensionUpper}" ShowExt="True" WidthRequest="48" HeightRequest="48" VerticalOptions="Center" />
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <Label Text="{Binding Name}" Style="{StaticResource TitleSm}" FontSize="15" LineBreakMode="MiddleTruncation" MaxLines="1" />
+                                            <Label Text="{Binding RecentMeta}" Style="{StaticResource Caption}" LineBreakMode="TailTruncation" MaxLines="1" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="2" Text="{x:Static helpers:Icons.MoreVert}" Style="{StaticResource Icon}" VerticalOptions="Center">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnRecentMoreTapped" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

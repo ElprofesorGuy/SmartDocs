@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell x:Class="SmartDocs.AppShell"
+       xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:views="clr-namespace:SmartDocs.Views"
+       xmlns:helpers="clr-namespace:SmartDocs.Helpers"
+       Shell.FlyoutBehavior="Disabled"
+       Shell.NavBarIsVisible="False"
+       Shell.BackgroundColor="{StaticResource AppBackground}"
+       Shell.TabBarBackgroundColor="{StaticResource Surface}"
+       Shell.TabBarForegroundColor="{StaticResource Primary}"
+       Shell.TabBarTitleColor="{StaticResource Primary}"
+       Shell.TabBarUnselectedColor="{StaticResource TextSecondary}">
+
+    <!-- Écran de démarrage : connexion (hors barre d'onglets) -->
+    <ShellContent Route="login" ContentTemplate="{DataTemplate views:LoginPage}" />
+
+    <!-- Navigation principale à 4 onglets (comme dans les maquettes) -->
+    <TabBar Route="main">
+        <ShellContent Route="home" Title="Accueil" ContentTemplate="{DataTemplate views:HomePage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="MaterialIcons" Glyph="{x:Static helpers:Icons.Dashboard}" Size="24" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Route="documents" Title="Documents" ContentTemplate="{DataTemplate views:DocumentsPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="MaterialIcons" Glyph="{x:Static helpers:Icons.Folder}" Size="24" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Route="upload" Title="Déposer" ContentTemplate="{DataTemplate views:UploadPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="MaterialIcons" Glyph="{x:Static helpers:Icons.CloudUpload}" Size="24" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Route="archives" Title="Archives" ContentTemplate="{DataTemplate views:ArchivesPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="MaterialIcons" Glyph="{x:Static helpers:Icons.Archive}" Size="24" />
+            </ShellContent.Icon>
+        </ShellContent>
+    </TabBar>
+</Shell>
