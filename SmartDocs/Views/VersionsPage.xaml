@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SmartDocs.Views.VersionsPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:SmartDocs.Controls"
+             xmlns:helpers="clr-namespace:SmartDocs.Helpers"
+             xmlns:models="clr-namespace:SmartDocs.Models"
+             BackgroundColor="{StaticResource AppBackground}"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Barre supérieure -->
+        <Grid Style="{StaticResource TopBar}" ColumnDefinitions="48,*,48" HeightRequest="64">
+            <Label Text="{x:Static helpers:Icons.ArrowBack}" Style="{StaticResource Icon}" TextColor="{StaticResource TextPrimary}">
+                <Label.GestureRecognizers><TapGestureRecognizer Tapped="OnBackTapped" /></Label.GestureRecognizers>
+            </Label>
+            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                <Label Text="Historique des versions" Style="{StaticResource TitleMd}" FontSize="17" />
+                <HorizontalStackLayout Spacing="4">
+                    <Label x:Name="FileGlyphLabel" Style="{StaticResource Icon}" TextColor="{StaticResource Primary}" FontSize="14" />
+                    <Label x:Name="FileNameLabel" Style="{StaticResource Caption}" LineBreakMode="TailTruncation" MaxLines="1" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+            <Label Grid.Column="2" Text="{x:Static helpers:Icons.MoreVert}" Style="{StaticResource Icon}" TextColor="{StaticResource TextPrimary}">
+                <Label.GestureRecognizers><TapGestureRecognizer Tapped="OnMoreTapped" /></Label.GestureRecognizers>
+            </Label>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16,12,16,28" Spacing="16">
+
+                <!-- Bandeau d'information -->
+                <Border BackgroundColor="{StaticResource AccentLight}" Stroke="{StaticResource AccentBorder}" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 10" Padding="12,10">
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="{x:Static helpers:Icons.InfoOutline}" Style="{StaticResource Icon}" TextColor="{StaticResource Primary}" FontSize="20" VerticalOptions="Start" />
+                        <Label Text="Restaurer une ancienne version créera une nouvelle version active sans écraser l'historique."
+                               TextColor="{StaticResource PrimaryDark}" FontSize="13" LineHeight="1.25" WidthRequest="290" />
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!-- Version actuelle -->
+                <VerticalStackLayout Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="VERSION ACTUELLE" Style="{StaticResource SectionLabel}" TextColor="{StaticResource Primary}" VerticalOptions="Center" />
+                        <controls:Badge Grid.Column="1" Text="● Actuelle" TextColor="{StaticResource Success}" BackgroundColor="{StaticResource SuccessBg}" />
+                    </Grid>
+
+                    <Border x:Name="CurrentCard" BackgroundColor="White" Stroke="{StaticResource Primary}" StrokeThickness="2" StrokeShape="RoundRectangle 14" Padding="16">
+                        <VerticalStackLayout Spacing="12" x:Name="CurrentStack">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label x:Name="CurrentTitle" Style="{StaticResource TitleMd}" FontSize="18" />
+                                    <Label x:Name="CurrentPublished" Style="{StaticResource Caption}" FontSize="13" />
+                                </VerticalStackLayout>
+                                <Border Grid.Column="1" WidthRequest="40" HeightRequest="40" BackgroundColor="{StaticResource AccentLight}" StrokeThickness="0" StrokeShape="RoundRectangle 10" VerticalOptions="Start">
+                                    <Label Text="{x:Static helpers:Icons.Verified}" Style="{StaticResource Icon}" TextColor="{StaticResource Primary}" />
+                                </Border>
+                            </Grid>
+                            <HorizontalStackLayout Spacing="6">
+                                <Label Text="{x:Static helpers:Icons.PersonOutline}" Style="{StaticResource Icon}" FontSize="16" />
+                                <Label x:Name="CurrentBy" FontFamily="InterMedium" FontSize="13" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                            <Border BackgroundColor="{StaticResource AppBackground}" Stroke="{StaticResource NeutralBg}" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="10,9">
+                                <Label x:Name="CurrentQuote" FontAttributes="Italic" FontSize="13" />
+                            </Border>
+                            <controls:AppButton Text="Télécharger" Glyph="{x:Static helpers:Icons.Download}" Clicked="OnDownloadCurrent" />
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Anciennes versions -->
+                <Label Text="Anciennes versions" Style="{StaticResource TitleSm}" FontSize="16" Margin="4,8,0,0" />
+
+                <VerticalStackLayout x:Name="OldVersionsLayout" Spacing="0">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:DocumentVersion">
+                            <Grid ColumnDefinitions="28,*" ColumnSpacing="6" Padding="0,0,0,16">
+                                <!-- Ligne de temps -->
+                                <BoxView WidthRequest="2" Color="{StaticResource BorderColor}" HorizontalOptions="Center" Margin="0,8,0,0" />
+                                <Border WidthRequest="14" HeightRequest="14" BackgroundColor="White" Stroke="{StaticResource TextSecondary}" StrokeThickness="2"
+                                        StrokeShape="RoundRectangle 7" HorizontalOptions="Center" VerticalOptions="Start" Margin="0,10,0,0" />
+
+                                <Border Grid.Column="1" Style="{StaticResource Card}" Padding="14">
+                                    <VerticalStackLayout Spacing="8">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <VerticalStackLayout Spacing="2">
+                                                <HorizontalStackLayout Spacing="8">
+                                                    <Label Text="{Binding HeaderText}" Style="{StaticResource TitleSm}" VerticalOptions="Center" />
+                                                    <controls:Badge Text="Initiale" IsVisible="{Binding IsInitial}" TextColor="{StaticResource TextSecondary}" BackgroundColor="{StaticResource NeutralBg}" />
+                                                </HorizontalStackLayout>
+                                                <Label Text="{Binding DateText}" Style="{StaticResource Caption}" FontSize="13" />
+                                                <Label Text="{Binding Author}" FontFamily="InterMedium" FontSize="13" />
+                                            </VerticalStackLayout>
+                                            <Label Grid.Column="1" Text="{Binding TrailingGlyph}" Style="{StaticResource Icon}" TextColor="{StaticResource BorderColor}" VerticalOptions="Start" />
+                                        </Grid>
+                                        <Border BackgroundColor="{StaticResource AppBackground}" Stroke="{StaticResource NeutralBg}" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="10,8">
+                                            <Label Text="{Binding Comment}" Style="{StaticResource Caption}" FontSize="13" TextColor="{StaticResource TextPrimary}" />
+                                        </Border>
+                                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                            <controls:AppButton Text="Télécharger" Glyph="{x:Static helpers:Icons.Download}" Variant="Outline" Compact="True" Clicked="OnDownloadOld" />
+                                            <controls:AppButton Grid.Column="1" Text="Restaurer" Glyph="{x:Static helpers:Icons.Restore}" Variant="SoftOutline" Compact="True" Clicked="OnRestoreClicked" />
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

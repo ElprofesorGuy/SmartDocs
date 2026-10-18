@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SmartDocs.Views.DocumentDetailPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:SmartDocs.Controls"
+             xmlns:helpers="clr-namespace:SmartDocs.Helpers"
+             xmlns:models="clr-namespace:SmartDocs.Models"
+             x:DataType="models:DocumentItem"
+             BackgroundColor="{StaticResource AppBackground}"
+             Shell.NavBarIsVisible="False">
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Barre supérieure -->
+        <Grid Style="{StaticResource TopBar}" ColumnDefinitions="Auto,*,Auto,Auto" HeightRequest="60" Padding="8,8,12,8">
+            <HorizontalStackLayout Spacing="2" Padding="8,0" VerticalOptions="Center">
+                <HorizontalStackLayout.GestureRecognizers><TapGestureRecognizer Tapped="OnBackTapped" /></HorizontalStackLayout.GestureRecognizers>
+                <Label Text="{x:Static helpers:Icons.ChevronLeft}" Style="{StaticResource Icon}" TextColor="{StaticResource Primary}" FontSize="22" />
+                <Label Text="Retour" Style="{StaticResource Link}" FontSize="14" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <Label Grid.Column="1" Text="Détail du document" Style="{StaticResource TitleSm}" FontSize="15"
+                   HorizontalTextAlignment="Center" VerticalOptions="Center" />
+            <Label Grid.Column="2" Text="{Binding FavoriteGlyph}" Style="{StaticResource Icon}" TextColor="{StaticResource TextPrimary}" WidthRequest="40">
+                <Label.GestureRecognizers><TapGestureRecognizer Tapped="OnFavoriteTapped" /></Label.GestureRecognizers>
+            </Label>
+            <Label Grid.Column="3" Text="{x:Static helpers:Icons.Share}" Style="{StaticResource Icon}" TextColor="{StaticResource TextPrimary}" WidthRequest="40">
+                <Label.GestureRecognizers><TapGestureRecognizer Tapped="OnShareTapped" /></Label.GestureRecognizers>
+            </Label>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16,12,16,24" Spacing="16">
+
+                <!-- Carte principale -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <controls:FileTile Glyph="{Binding FileGlyph}" Fg="{Binding FileColor}" Bg="{Binding FileBg}"
+                                               Ext="{Binding ExtensionUpper}" ShowExt="True" WidthRequest="56" HeightRequest="56" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="{Binding Name}" Style="{StaticResource TitleMd}" LineBreakMode="MiddleTruncation" MaxLines="1" />
+                                <Label Text="{Binding Description}" Style="{StaticResource Muted}" FontSize="13" MaxLines="2" LineBreakMode="TailTruncation" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- Aperçu (zone factice) -->
+                        <Border BackgroundColor="#E0E9FF" StrokeThickness="1" Stroke="{StaticResource AccentBorder}" StrokeShape="RoundRectangle 10" HeightRequest="118">
+                            <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="4">
+                                <Label Text="{x:Static helpers:Icons.Description}" Style="{StaticResource Icon}" TextColor="{StaticResource PrimaryStrong}" FontSize="34" />
+                                <Label Text="Prévisualisation sécurisée" FontFamily="InterSemiBold" HorizontalTextAlignment="Center" />
+                                <Label Text="Aperçu non disponible en démonstration" Style="{StaticResource Caption}" FontSize="11" HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <BoxView HeightRequest="1" Color="{StaticResource NeutralBg}" />
+
+                        <Border BackgroundColor="{StaticResource DangerBg}" Stroke="#FECACA" StrokeThickness="1" StrokeShape="RoundRectangle 16"
+                                Padding="10,5" HorizontalOptions="Start">
+                            <HorizontalStackLayout Spacing="5">
+                                <Label Text="{x:Static helpers:Icons.Lock}" Style="{StaticResource Icon}" TextColor="{StaticResource Danger}" FontSize="14" />
+                                <Label Text="{Binding Confidentiality}" TextColor="{StaticResource Danger}" FontFamily="InterSemiBold" FontSize="12" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Actions -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <controls:AppButton Text="Consulter" Glyph="{x:Static helpers:Icons.Visibility}" Variant="OutlinePrimary" Clicked="OnViewClicked" />
+                    <controls:AppButton Grid.Column="1" Text="Télécharger" Glyph="{x:Static helpers:Icons.Download}" Clicked="OnDownloadClicked" />
+                </Grid>
+
+                <!-- Informations clés -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="0">
+                        <HorizontalStackLayout Spacing="8" Margin="0,0,0,8">
+                            <Label Text="{x:Static helpers:Icons.InfoOutline}" Style="{StaticResource Icon}" TextColor="{StaticResource Primary}" FontSize="20" />
+                            <Label Text="Informations clés" Style="{StaticResource TitleMd}" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+
+                        <Grid ColumnDefinitions="*,Auto" Padding="0,12">
+                            <Label Text="Type de fichier" Style="{StaticResource Muted}" FontSize="13" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="{Binding TypeLabel}" FontFamily="InterSemiBold" FontSize="13" />
+                        </Grid>
+                        <BoxView HeightRequest="1" Color="{StaticResource NeutralBg}" />
+                        <Grid ColumnDefinitions="*,Auto" Padding="0,12">
+                            <Label Text="Taille" Style="{StaticResource Muted}" FontSize="13" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="{Binding SizeText}" FontFamily="InterSemiBold" FontSize="13" />
+                        </Grid>
+                        <BoxView HeightRequest="1" Color="{StaticResource NeutralBg}" />
+                        <Grid ColumnDefinitions="*,Auto" Padding="0,10">
+                            <Label Text="Catégorie" Style="{StaticResource Muted}" FontSize="13" VerticalOptions="Center" />
+                            <controls:Badge Grid.Column="1" Text="{Binding CategoryPath}" TextColor="{Binding CategoryFg}" BackgroundColor="{Binding CategoryBg}" FontSize="12" />
+                        </Grid>
+                        <BoxView HeightRequest="1" Color="{StaticResource NeutralBg}" />
+                        <Grid ColumnDefinitions="*,Auto" Padding="0,12">
+                            <Label Text="Publication" Style="{StaticResource Muted}" FontSize="13" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="{Binding PublicationText}" FontFamily="InterSemiBold" FontSize="13" />
+                        </Grid>
+                        <BoxView HeightRequest="1" Color="{StaticResource NeutralBg}" />
+                        <Grid ColumnDefinitions="*,Auto" Padding="0,10">
+                            <Label Text="Propriétaire" Style="{StaticResource Muted}" FontSize="13" VerticalOptions="Center" />
+                            <HorizontalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center">
+                                <Border WidthRequest="24" HeightRequest="24" BackgroundColor="#DBEAFE" StrokeThickness="0" StrokeShape="RoundRectangle 12">
+                                    <Label Text="{Binding OwnerInitials}" FontFamily="InterBold" FontSize="9" TextColor="{StaticResource PrimaryStrong}"
+                                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                                </Border>
+                                <Label Text="{Binding Owner}" FontFamily="InterSemiBold" FontSize="13" VerticalOptions="Center" />
+                                <Label Text="{Binding OwnerRoleText}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </Grid>
+                        <BoxView HeightRequest="1" Color="{StaticResource NeutralBg}" />
+                        <Grid ColumnDefinitions="*,Auto" Padding="0,10,0,0">
+                            <Label Text="Version courante" Style="{StaticResource Muted}" FontSize="13" VerticalOptions="Center" />
+                            <controls:Badge Grid.Column="1" Text="{Binding VersionBadgeText}" TextColor="{StaticResource Success}"
+                                            BackgroundColor="{StaticResource SuccessBg}" FontSize="12" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Historique des versions -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="{x:Static helpers:Icons.History}" Style="{StaticResource Icon}" TextColor="{StaticResource Primary}" FontSize="20" />
+                                <Label x:Name="HistoryTitle" Text="Historique des versions" Style="{StaticResource TitleMd}" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                            <Label Grid.Column="1" Text="Voir tout" Style="{StaticResource Link}" FontSize="12" VerticalOptions="Center">
+                                <Label.GestureRecognizers><TapGestureRecognizer Tapped="OnSeeAllVersions" /></Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+                        <VerticalStackLayout x:Name="VersionsLayout" Spacing="8">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:DocumentVersion">
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" Padding="0,4">
+                                        <Border WidthRequest="28" HeightRequest="28" BackgroundColor="{StaticResource NeutralBg}" StrokeThickness="0" StrokeShape="RoundRectangle 14" VerticalOptions="Center">
+                                            <Label Text="{Binding TrailingGlyph}" Style="{StaticResource Icon}" FontSize="16" />
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                            <Label Text="{Binding Title}" FontFamily="InterSemiBold" FontSize="13" />
+                                            <Label Text="{Binding ShortLine}" Style="{StaticResource Caption}" LineBreakMode="TailTruncation" MaxLines="1" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Archivage -->
+                <controls:AppButton x:Name="ArchiveButton" Text="Archiver ce document" Glyph="{x:Static helpers:Icons.Archive}"
+                                    Variant="DangerOutline" Clicked="OnArchiveClicked" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>
