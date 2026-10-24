@@ -1,0 +1,60 @@
+@host = http://localhost:5080
+
+### Santé du serveur
+GET {{host}}/health
+
+### Connexion avec le compte de démonstration (si Seed:Enabled = true)
+# @name login
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "alexandre.martin@entreprise.com", "password": "Demo1234" }
+
+###
+@token = {{login.response.body.$.token}}
+
+### Inscription
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{ "fullName": "Test Utilisateur", "email": "test@entreprise.com", "password": "Test1234" }
+
+### Liste des documents actifs (filtres : search, category, extension, sort)
+GET {{host}}/api/documents?search=rapport&category=Finance&sort=name
+Authorization: Bearer {{token}}
+
+### Documents archivés
+GET {{host}}/api/documents?archived=true&sort=archived_desc
+Authorization: Bearer {{token}}
+
+### Détail d'un document (remplacer l'identifiant)
+GET {{host}}/api/documents/ID_DU_DOCUMENT
+Authorization: Bearer {{token}}
+
+### Versions d'un document
+GET {{host}}/api/documents/ID_DU_DOCUMENT/versions
+Authorization: Bearer {{token}}
+
+### Corbeille : liste, mettre à la corbeille, restaurer, supprimer définitivement
+GET {{host}}/api/documents?trash=true
+Authorization: Bearer {{token}}
+
+###
+DELETE {{host}}/api/documents/ID_DU_DOCUMENT
+Authorization: Bearer {{token}}
+
+###
+POST {{host}}/api/documents/ID_DU_DOCUMENT/undelete
+Authorization: Bearer {{token}}
+
+###
+DELETE {{host}}/api/documents/ID_DU_DOCUMENT/purge
+Authorization: Bearer {{token}}
+
+### Archiver / restaurer
+POST {{host}}/api/documents/ID_DU_DOCUMENT/archive
+Authorization: Bearer {{token}}
+
+###
+POST {{host}}/api/documents/ID_DU_DOCUMENT/unarchive
+Authorization: Bearer {{token}}
