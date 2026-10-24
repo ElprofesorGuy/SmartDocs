@@ -4,3 +4,9 @@ obj/
 *.user
 *.suo
 *.zip
+
+# API : base SQLite et fichiers déposés (données locales)
+SmartDocs.Api/*.db
+SmartDocs.Api/*.db-shm
+SmartDocs.Api/*.db-wal
+SmartDocs.Api/Storage/
