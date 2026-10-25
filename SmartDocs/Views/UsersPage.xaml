@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SmartDocs.Views.UsersPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:SmartDocs.Controls"
+             xmlns:helpers="clr-namespace:SmartDocs.Helpers"
+             xmlns:models="clr-namespace:SmartDocs.Models"
+             BackgroundColor="{StaticResource AppBackground}"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+    <Grid RowDefinitions="Auto,*">
+
+        <Grid Style="{StaticResource TopBar}" ColumnDefinitions="48,*,48" HeightRequest="60">
+            <Label Text="{x:Static helpers:Icons.ArrowBack}" Style="{StaticResource Icon}" TextColor="{StaticResource TextPrimary}">
+                <Label.GestureRecognizers><TapGestureRecognizer Tapped="OnBackTapped" /></Label.GestureRecognizers>
+            </Label>
+            <Label Grid.Column="1" Text="Utilisateurs et rôles" Style="{StaticResource TitleMd}" FontSize="18" VerticalOptions="Center" />
+            <Label Grid.Column="2" Text="{x:Static helpers:Icons.MailOutline}" Style="{StaticResource Icon}" TextColor="{StaticResource PrimaryStrong}">
+                <Label.GestureRecognizers><TapGestureRecognizer Tapped="OnInvitationsTapped" /></Label.GestureRecognizers>
+            </Label>
+        </Grid>
+
+        <CollectionView x:Name="UsersList" Grid.Row="1" SelectionMode="None" Margin="16,0">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.Header>
+                <Label Text="Touchez un compte pour modifier son rôle, son service et son poste. Les comptes se créent sur invitation : touchez l'enveloppe en haut à droite pour inviter quelqu'un."
+                       Style="{StaticResource Caption}" FontSize="13" Margin="0,12,0,12" />
+            </CollectionView.Header>
+            <CollectionView.Footer>
+                <BoxView HeightRequest="16" Color="Transparent" />
+            </CollectionView.Footer>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:UserItem">
+                    <Border Style="{StaticResource Card}" Padding="14">
+                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnUserTapped" /></Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Border WidthRequest="44" HeightRequest="44" BackgroundColor="#DBEAFE" StrokeThickness="0" StrokeShape="RoundRectangle 22" VerticalOptions="Start">
+                                <Label Text="{Binding Initials}" FontFamily="InterBold" FontSize="14" TextColor="{StaticResource PrimaryStrong}"
+                                       HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="3">
+                                <Label Text="{Binding FullName}" Style="{StaticResource TitleSm}" FontSize="15" LineBreakMode="TailTruncation" MaxLines="1" />
+                                <Label Text="{Binding Email}" Style="{StaticResource Caption}" LineBreakMode="TailTruncation" MaxLines="1" />
+                                <Label Text="{Binding Meta}" Style="{StaticResource Caption}" LineBreakMode="TailTruncation" MaxLines="1" />
+                                <controls:Badge Text="{Binding RoleLabel}" TextColor="{Binding RoleFg}" BackgroundColor="{Binding RoleBg}" Margin="0,4,0,0" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

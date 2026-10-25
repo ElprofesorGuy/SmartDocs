@@ -19,9 +19,12 @@ public static class MauiProgram
                 fonts.AddFont("MaterialIconsOutlined-Regular.otf", "MaterialIcons");
             });
 
-        // Services (données de démonstration locales, en mémoire)
+        // Services (client HTTP de l'API, authentification, documents)
+        builder.Services.AddSingleton<ApiClient>();
         builder.Services.AddSingleton<AuthService>();
         builder.Services.AddSingleton<DocumentService>();
+        builder.Services.AddSingleton<AdminService>();
+        builder.Services.AddSingleton<ActivityService>();
 
         // Pages
         builder.Services.AddTransient<LoginPage>();
@@ -32,6 +35,10 @@ public static class MauiProgram
         builder.Services.AddTransient<ArchivesPage>();
         builder.Services.AddTransient<DocumentDetailPage>();
         builder.Services.AddTransient<VersionsPage>();
+        builder.Services.AddTransient<UsersPage>();
+        builder.Services.AddTransient<TrashPage>();
+        builder.Services.AddTransient<ActivityPage>();
+        builder.Services.AddTransient<InvitationsPage>();
 
         // Supprime le soulignement natif Android des champs de saisie (les champs sont habillés par des Border)
         Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) =>
