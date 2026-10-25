@@ -122,7 +122,7 @@
                                     <Label Text="{Binding ArchivedText}" Style="{StaticResource Caption}" FontSize="13" VerticalOptions="Center" />
                                 </HorizontalStackLayout>
                                 <controls:AppButton Grid.Column="1" Text="Restaurer" Glyph="{x:Static helpers:Icons.Unarchive}"
-                                                    Variant="OutlinePrimary" Compact="True" Clicked="OnRestoreClicked" />
+                                                    Variant="OutlinePrimary" Compact="True" IsVisible="{Binding CanArchive}" Clicked="OnRestoreClicked" />
                             </Grid>
                         </VerticalStackLayout>
                     </Border>

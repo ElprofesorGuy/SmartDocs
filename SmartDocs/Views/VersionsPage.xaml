@@ -66,6 +66,8 @@
                                 <Label x:Name="CurrentQuote" FontAttributes="Italic" FontSize="13" />
                             </Border>
                             <controls:AppButton Text="Télécharger" Glyph="{x:Static helpers:Icons.Download}" Clicked="OnDownloadCurrent" />
+                            <controls:AppButton x:Name="NewVersionButton" Text="Ajouter une nouvelle version" Glyph="{x:Static helpers:Icons.FileUpload}"
+                                                Variant="OutlinePrimary" IsVisible="False" Clicked="OnNewVersionClicked" />
                         </VerticalStackLayout>
                     </Border>
                 </VerticalStackLayout>
@@ -100,7 +102,7 @@
                                         </Border>
                                         <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                                             <controls:AppButton Text="Télécharger" Glyph="{x:Static helpers:Icons.Download}" Variant="Outline" Compact="True" Clicked="OnDownloadOld" />
-                                            <controls:AppButton Grid.Column="1" Text="Restaurer" Glyph="{x:Static helpers:Icons.Restore}" Variant="SoftOutline" Compact="True" Clicked="OnRestoreClicked" />
+                                            <controls:AppButton Grid.Column="1" Text="Restaurer" Glyph="{x:Static helpers:Icons.Restore}" Variant="SoftOutline" Compact="True" IsVisible="{Binding CanRestore}" Clicked="OnRestoreClicked" />
                                         </Grid>
                                     </VerticalStackLayout>
                                 </Border>

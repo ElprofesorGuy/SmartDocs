@@ -13,6 +13,7 @@ public class DocumentVersion
     public string Comment { get; set; } = "";
     public bool IsCurrent { get; set; }
     public bool IsInitial { get; set; }
+    public bool CanRestore { get; set; }
 
     public string Title => $"Version {Number}";
     public string SizeText => SizeKb < 1024

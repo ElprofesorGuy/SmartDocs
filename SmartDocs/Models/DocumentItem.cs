@@ -22,10 +22,16 @@ public class DocumentItem : ObservableObject
     public string Subtitle { get; set; } = "";
     public string Owner { get; set; } = "";
     public string OwnerRole { get; set; } = "";
-    public string ModifiedInfo { get; set; } = "";             // « il y a 2h par Claire D. »
+    public string ModifiedBy { get; set; } = "";
+    /// <summary>Droits de l'utilisateur connecté sur ce document (calculés par le serveur).</summary>
+    public bool CanArchive { get; set; }
+    public bool CanAddVersion { get; set; }
+    public bool CanDelete { get; set; }
+    public bool CanPurge { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public string DeletedBy { get; set; } = "";
     public string Confidentiality { get; set; } = "Interne";
     public List<string> Tags { get; set; } = new();
-    public int RecentRank { get; set; }                        // >0 : apparaît dans « Documents récents »
     public DateTime? ArchivedAt { get; set; }
 
     public double SizeKb { get => _sizeKb; set => _sizeKb = value; }
@@ -127,8 +133,28 @@ public class DocumentItem : ObservableObject
         ? $"{SizeText} • {Subtitle} • v{CurrentVersion}"
         : $"{SizeText} • {Subtitle}";
 
+    public string ModifiedInfo => $"{RelativeTime(ModifiedAt)} par {ShortName(ModifiedBy)}";
+
+    private static string RelativeTime(DateTime t)
+    {
+        var d = DateTime.Now - t;
+        if (d.TotalMinutes < 1) return "à l'instant";
+        if (d.TotalHours < 1) return $"il y a {(int)d.TotalMinutes} min";
+        if (d.TotalHours < 24) return $"il y a {(int)d.TotalHours}h";
+        if (d.TotalDays < 2) return "hier";
+        return $"le {t.ToString("d MMM", Fr)}";
+    }
+
+    private static string ShortName(string full)
+    {
+        var parts = full.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length < 2 ? full : $"{parts[0]} {parts[^1][0]}.";
+    }
+
     public string RecentMeta => $"{SizeText} • Modifié {ModifiedInfo}";
     public string ArchivedText => $"Archivé le {(ArchivedAt ?? DateTime.Now).ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}";
+    public string DeletedText => $"Supprimé le {(DeletedAt ?? DateTime.Now).ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}"
+                                 + (string.IsNullOrWhiteSpace(DeletedBy) ? "" : $" par {DeletedBy}");
     public string VersionBadgeText => $"v{CurrentVersion} (Active)";
     public string OwnerLabel => string.IsNullOrWhiteSpace(OwnerRole) ? Owner : Owner;
     public string OwnerRoleText => string.IsNullOrWhiteSpace(OwnerRole) ? "" : $"({OwnerRole})";

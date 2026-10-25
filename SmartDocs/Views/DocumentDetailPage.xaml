@@ -47,7 +47,7 @@
                             <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="4">
                                 <Label Text="{x:Static helpers:Icons.Description}" Style="{StaticResource Icon}" TextColor="{StaticResource PrimaryStrong}" FontSize="34" />
                                 <Label Text="Prévisualisation sécurisée" FontFamily="InterSemiBold" HorizontalTextAlignment="Center" />
-                                <Label Text="Aperçu non disponible en démonstration" Style="{StaticResource Caption}" FontSize="11" HorizontalTextAlignment="Center" />
+                                <Label Text="Utilisez « Consulter » pour ouvrir le fichier" Style="{StaticResource Caption}" FontSize="11" HorizontalTextAlignment="Center" />
                             </VerticalStackLayout>
                         </Border>
 
@@ -150,6 +150,10 @@
                 <!-- Archivage -->
                 <controls:AppButton x:Name="ArchiveButton" Text="Archiver ce document" Glyph="{x:Static helpers:Icons.Archive}"
                                     Variant="DangerOutline" Clicked="OnArchiveClicked" />
+
+                <!-- Suppression (corbeille) -->
+                <controls:AppButton x:Name="DeleteButton" Text="Supprimer ce document" Glyph="{x:Static helpers:Icons.Delete}"
+                                    Variant="Danger" Clicked="OnDeleteClicked" />
             </VerticalStackLayout>
         </ScrollView>
     </Grid>

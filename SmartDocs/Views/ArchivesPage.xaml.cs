@@ -8,19 +8,23 @@ namespace SmartDocs.Views;
 public partial class ArchivesPage : ContentPage
 {
     private readonly DocumentService _docs;
+    private readonly AuthService _auth;
     private int? _year;
     private bool _ascending;
 
-    public ArchivesPage(DocumentService docs)
+    public ArchivesPage(DocumentService docs, AuthService auth)
     {
         InitializeComponent();
         _docs = docs;
+        _auth = auth;
         FieldFocus.Hook(SearchEntry, SearchBorder);
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
+        Reload();
+        await DocumentActions.RefreshAsync(this, _docs);
         Reload();
     }
 
@@ -60,7 +64,7 @@ public partial class ArchivesPage : ContentPage
             "OK");
 
     private async void OnMenuTapped(object? sender, TappedEventArgs e)
-        => await Shell.Current.GoToAsync("//main/home");
+        => await AccountMenu.ShowAsync(this, _auth, _docs);
 
     private static DocumentItem? ItemOf(object? sender) => (sender as BindableObject)?.BindingContext as DocumentItem;
 
@@ -81,7 +85,15 @@ public partial class ArchivesPage : ContentPage
     {
         var doc = ItemOf(sender);
         if (doc == null) return;
-        _docs.Unarchive(doc);
+        try
+        {
+            await _docs.UnarchiveAsync(doc);
+        }
+        catch (ApiException ex)
+        {
+            await DocumentActions.HandleAsync(this, ex);
+            return;
+        }
         Reload();
         await DisplayAlert("Document restauré", $"« {doc.Name} » est de nouveau disponible dans Documents.", "OK");
     }
