@@ -21,6 +21,8 @@ public static class Icons
     public const string Download = "\uf090"; // download
     public const string FilterAlt = "\uef4f"; // filter_alt
     public const string Sort = "\ue164"; // sort
+    public const string Delete = "\ue872"; // delete
+    public const string DeleteForever = "\ue92b"; // delete_forever
     public const string Add = "\ue145"; // add
     public const string ArrowBack = "\ue5c4"; // arrow_back
     public const string ArrowForward = "\ue5c8"; // arrow_forward
@@ -48,5 +50,6 @@ public static class Icons
     public const string ArrowDownward = "\ue5db"; // arrow_downward
     public const string ArrowUpward = "\ue5d8"; // arrow_upward
     public const string LockOutline = "\ue897"; // lock
+    public const string VpnKey = "\ue0da"; // vpn_key
     public const string InfoOutline = "\ue88e"; // info
 }

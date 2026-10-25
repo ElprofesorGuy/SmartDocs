@@ -48,8 +48,11 @@
                             <Border Grid.Column="1" BackgroundColor="{StaticResource NeutralBg}" Stroke="#E2E8F0" StrokeThickness="1"
                                     StrokeShape="RoundRectangle 8" Padding="8,3" VerticalOptions="Center">
                                 <HorizontalStackLayout Spacing="5">
-                                    <BoxView WidthRequest="6" HeightRequest="6" CornerRadius="3" Color="#10B981" VerticalOptions="Center" />
-                                    <Label Text="Portail Actif" Style="{StaticResource Caption}" FontSize="11" />
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnServerTapped" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <BoxView x:Name="PortalDot" WidthRequest="6" HeightRequest="6" CornerRadius="3" Color="#94A3B8" VerticalOptions="Center" />
+                                    <Label x:Name="PortalLabel" Text="Connexion…" Style="{StaticResource Caption}" FontSize="11" />
                                 </HorizontalStackLayout>
                             </Border>
                         </Grid>
@@ -133,7 +136,7 @@
             </Border>
 
             <HorizontalStackLayout HorizontalOptions="Center" Spacing="6" Margin="0,24,0,0">
-                <Label Text="Vous n'avez pas encore de compte ?" Style="{StaticResource Muted}" FontSize="13" />
+                <Label Text="Vous avez reçu une invitation ?" Style="{StaticResource Muted}" FontSize="13" />
                 <Label Text="S'inscrire" Style="{StaticResource Link}">
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnRegisterTapped" />

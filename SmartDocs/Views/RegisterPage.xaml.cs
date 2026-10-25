@@ -12,6 +12,7 @@ public partial class RegisterPage : ContentPage
     {
         InitializeComponent();
         _auth = auth;
+        FieldFocus.Hook(CodeEntry, CodeBorder);
         FieldFocus.Hook(NameEntry, NameBorder);
         FieldFocus.Hook(EmailEntry, EmailBorder);
         FieldFocus.Hook(PasswordEntry, PasswordBorder);
@@ -40,12 +41,17 @@ public partial class RegisterPage : ContentPage
     private void UpdateForm()
     {
         var pwd = PasswordEntry.Text ?? "";
+        var codeOk = Validation.IsInviteCode(CodeEntry.Text);
         var emailOk = Validation.IsEmail(EmailEntry.Text);
         var lenOk = Validation.HasMinLength(pwd);
         var upOk = Validation.HasUpper(pwd);
         var digOk = Validation.HasDigit(pwd);
         var score = (lenOk ? 1 : 0) + (upOk ? 1 : 0) + (digOk ? 1 : 0);
         var confirmOk = pwd.Length > 0 && pwd == (ConfirmEntry.Text ?? "");
+
+        // Code d'invitation
+        CodeCheck.IsVisible = codeOk;
+        CodeBorder.Stroke = codeOk ? Palette.Success : Palette.Border;
 
         // E-mail
         EmailOkHint.IsVisible = emailOk;
@@ -71,16 +77,27 @@ public partial class RegisterPage : ContentPage
 
         // Bouton actif uniquement si tout est valide
         SubmitButton.IsEnabled =
-            !string.IsNullOrWhiteSpace(NameEntry.Text) && emailOk && score == 3 && confirmOk && TermsCheck.IsChecked;
+            codeOk && !string.IsNullOrWhiteSpace(NameEntry.Text) && emailOk && score == 3 && confirmOk && TermsCheck.IsChecked;
     }
 
     private async void OnSubmitClicked(object? sender, EventArgs e)
     {
+        ErrorLabel.IsVisible = false;
         SubmitButton.IsEnabled = false;
         SubmitButton.Text = "Création…";
-        await _auth.RegisterAsync(NameEntry.Text ?? "", EmailEntry.Text ?? ""); // SIMULÉ : aucun compte réel n'est créé
-        await DisplayAlert("Compte créé (simulation)",
-            "Aucune donnée n'a été envoyée ni enregistrée : cette démonstration n'a pas de serveur.", "Continuer");
+        try
+        {
+            await _auth.RegisterAsync(NameEntry.Text ?? "", EmailEntry.Text ?? "", PasswordEntry.Text ?? "", CodeEntry.Text ?? "");
+        }
+        catch (ApiException ex)
+        {
+            ErrorLabel.Text = ex.Message;
+            ErrorLabel.IsVisible = true;
+            SubmitButton.Text = "S'inscrire";
+            UpdateForm();
+            return;
+        }
+        await DisplayAlert("Compte créé", $"Bienvenue, {_auth.CurrentUser.FirstName} !\nVotre rôle : {_auth.CurrentUser.RoleLabel}.", "Continuer");
         await Shell.Current.GoToAsync("//main/home");
     }
 }

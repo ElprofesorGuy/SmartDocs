@@ -31,7 +31,22 @@
 
                 <VerticalStackLayout Spacing="4">
                     <Label Text="Créer un compte" Style="{StaticResource H1}" />
-                    <Label Text="Rejoignez votre espace documentaire d'entreprise" Style="{StaticResource Muted}" />
+                    <Label Text="L'inscription se fait sur invitation : saisissez le code reçu de votre administrateur." Style="{StaticResource Muted}" />
+                </VerticalStackLayout>
+
+                <!-- Code d'invitation (obligatoire) -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Code d'invitation" Style="{StaticResource FieldLabel}" />
+                    <Border x:Name="CodeBorder" Style="{StaticResource Field}">
+                        <Grid ColumnDefinitions="44,*,40">
+                            <Label Text="{x:Static helpers:Icons.VpnKey}" Style="{StaticResource Icon}" FontSize="22" />
+                            <Entry x:Name="CodeEntry" Grid.Column="1" Placeholder="XXXXX-XXXXX" Keyboard="Plain" MaxLength="20" TextChanged="OnFormChanged" />
+                            <Label x:Name="CodeCheck" Grid.Column="2" Text="{x:Static helpers:Icons.CheckCircle}" Style="{StaticResource Icon}"
+                                   TextColor="{StaticResource Success}" FontSize="22" IsVisible="False" />
+                        </Grid>
+                    </Border>
+                    <Label Text="Votre rôle est défini par l'invitation. Si elle est réservée à une adresse e-mail, utilisez cette adresse ci-dessous."
+                           Style="{StaticResource Caption}" FontSize="12" />
                 </VerticalStackLayout>
 
                 <!-- Nom complet -->
