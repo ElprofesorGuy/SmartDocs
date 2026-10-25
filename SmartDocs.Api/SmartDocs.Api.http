@@ -13,11 +13,34 @@ Content-Type: application/json
 ###
 @token = {{login.response.body.$.token}}
 
-### Inscription
+### Inscription : uniquement sur invitation (inviteCode obligatoire).
+# Code de démonstration (usage unique) : ALPHA-FIN25 (Collaborateur Finance) ou BRAVO-INV25 (Invité)
 POST {{host}}/api/auth/register
 Content-Type: application/json
 
-{ "fullName": "Test Utilisateur", "email": "test@entreprise.com", "password": "Test1234" }
+{ "fullName": "Test Utilisateur", "email": "test@entreprise.com", "password": "Test1234", "inviteCode": "ALPHA-FIN25" }
+
+### Invitations (Administrateur : se connecter avec thomas.dubois@entreprise.com pour obtenir le jeton)
+GET {{host}}/api/admin/invitations
+Authorization: Bearer {{token}}
+
+###
+# role : Admin, Direction, Manager, Collaborator, Auditor, Guest. department obligatoire pour Manager et Collaborator.
+# email facultatif (réserve l'invitation à cette adresse). validDays : 1 à 30 (7 par défaut).
+POST {{host}}/api/admin/invitations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+# Avec une adresse e-mail et Smtp:Enabled = true, le code est envoyé automatiquement (réponse : emailStatus).
+{ "role": "Collaborator", "department": "RH", "jobTitle": "Chargé de recrutement", "email": "", "validDays": 7 }
+
+### Envoyer / renvoyer le code par e-mail (SMTP configuré, invitation active avec adresse)
+POST {{host}}/api/admin/invitations/ID_INVITATION/email
+Authorization: Bearer {{token}}
+
+###
+DELETE {{host}}/api/admin/invitations/ID_INVITATION
+Authorization: Bearer {{token}}
 
 ### Liste des documents actifs (filtres : search, category, extension, sort)
 GET {{host}}/api/documents?search=rapport&category=Finance&sort=name
@@ -33,6 +56,14 @@ Authorization: Bearer {{token}}
 
 ### Versions d'un document
 GET {{host}}/api/documents/ID_DU_DOCUMENT/versions
+Authorization: Bearer {{token}}
+
+### Journal d'activité (Direction, Auditeur, Administrateur)
+GET {{host}}/api/activity?take=20
+Authorization: Bearer {{token}}
+
+###
+GET {{host}}/api/activity?action=Archive,Unarchive&search=Politique
 Authorization: Bearer {{token}}
 
 ### Corbeille : liste, mettre à la corbeille, restaurer, supprimer définitivement
