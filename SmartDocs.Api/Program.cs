@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SmartDocs.Api.Data;
 using SmartDocs.Api.Endpoints;
+using SmartDocs.Api.Models;
 using SmartDocs.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,7 @@ var dbPath = Path.Combine(builder.Environment.ContentRootPath, config["Database:
 builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlite($"Data Source={dbPath}"));
 builder.Services.AddSingleton<FileStorage>();
 builder.Services.AddSingleton<TokenService>();
+builder.Services.AddSingleton<EmailService>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -59,10 +61,12 @@ using (var scope = app.Services.CreateScope())
     db.Database.EnsureCreated();
     try
     {
-        // Détecte une base créée avant l'ajout des rôles ou de la corbeille
+        // Détecte une base créée avant l'ajout des rôles, de la corbeille ou du journal
         db.Users.Select(u => u.Role).Take(1).ToList();
         db.Documents.Select(d => d.OwnerId).Take(1).ToList();
         db.Documents.Select(d => d.IsDeleted).Take(1).ToList(); // corbeille
+        db.ActivityLogs.Select(l => l.Id).Take(1).ToList();     // journal d'activité
+        db.Invitations.Select(i => i.Id).Take(1).ToList();      // invitations
     }
     catch (Exception)
     {
@@ -71,6 +75,27 @@ using (var scope = app.Services.CreateScope())
     }
     if (config.GetValue<bool>("Seed:Enabled"))
         Seeder.Seed(db, scope.ServiceProvider.GetRequiredService<FileStorage>());
+
+    var mail = scope.ServiceProvider.GetRequiredService<EmailService>();
+    if (mail.IsConfigured) app.Logger.LogInformation("Envoi des invitations par e-mail activé (serveur SMTP : {Host}).", mail.Host);
+    else app.Logger.LogInformation("Envoi des invitations par e-mail désactivé (section Smtp) : l'administrateur transmet les codes lui-même.");
+
+    // L'inscription se fait sur invitation uniquement : sans aucun compte, personne ne pourrait en créer.
+    // On génère donc une invitation Administrateur, affichée une seule fois dans la console du serveur.
+    var now = DateTime.UtcNow;
+    if (!db.Users.Any() && !db.Invitations.Any(i => i.UsedAt == null && i.RevokedAt == null && i.ExpiresAt > now))
+    {
+        var code = InviteCodes.Generate();
+        db.Invitations.Add(new Invitation
+        {
+            Code = code, Role = Role.Admin, JobTitle = "Administrateur SI",
+            CreatedBy = "Système", CreatedAt = now, ExpiresAt = now.AddDays(7)
+        });
+        db.SaveChanges();
+        app.Logger.LogWarning(
+            "Aucun compte : utilisez ce code d'invitation Administrateur (valable 7 jours) pour créer le premier compte : {Code}",
+            InviteCodes.Format(code));
+    }
 }
 
 app.UseExceptionHandler(errorApp => errorApp.Run(async ctx =>
@@ -87,5 +112,6 @@ app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 app.MapAuth();
 app.MapDocuments();
 app.MapAdmin();
+app.MapActivity();
 
 app.Run();
