@@ -52,5 +52,15 @@ public static class Access
     /// <summary>La corbeille ne montre que les documents sur lesquels l'utilisateur peut agir.</summary>
     public static bool CanSeeInTrash(User u, Document d) => CanSee(u, d) && (CanDelete(u, d) || CanPurge(u, d));
 
+    /// <summary>Journal d'activité : Direction et Auditeur (tout), Administrateur (hors documents confidentiels).</summary>
+    public static bool CanSeeActivity(User u) => u.Role is Role.Direction or Role.Auditor or Role.Admin;
+
+    public static Expression<Func<ActivityLog, bool>> ActivityVisible(User u) => u.Role switch
+    {
+        Role.Direction or Role.Auditor => l => true,
+        Role.Admin => l => l.Confidentiality != "Confidentiel", // l'administrateur ne lit pas les confidentiels, ni leur trace
+        _ => l => false
+    };
+
     public static bool IsAdmin(User u) => u.Role == Role.Admin;
 }

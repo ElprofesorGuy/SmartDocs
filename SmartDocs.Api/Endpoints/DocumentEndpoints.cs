@@ -150,6 +150,9 @@ public static class DocumentEndpoints
               .Distinct(StringComparer.OrdinalIgnoreCase)
               .Take(10).ToList();
 
+    private static string FormatSize(long bytes)
+        => bytes < 1024 * 1024 ? $"{Math.Max(1, bytes / 1024)} Ko" : $"{bytes / 1024.0 / 1024.0:0.0} Mo";
+
     private static string NextNumber(string current, IEnumerable<string> existing)
     {
         var used = existing.ToHashSet();
@@ -212,6 +215,7 @@ public static class DocumentEndpoints
         };
         db.Documents.Add(doc);
         NewVersion(db, doc, stored, file.Length, user.FullName, "Version initiale", number: "1.0");
+        Audit.Add(db, user, "Deposit", doc, $"Niveau {level}, {FormatSize(file.Length)}");
         await db.SaveChangesAsync();
 
         var created = await db.Documents.Include(d => d.Versions).AsNoTracking().FirstAsync(d => d.Id == doc.Id);
@@ -239,6 +243,7 @@ public static class DocumentEndpoints
         await using var stream = file!.OpenReadStream();
         var stored = await files.SaveAsync(stream, ext!);
         var version = NewVersion(db, doc, stored, file.Length, user.FullName, comment);
+        Audit.Add(db, user, "AddVersion", doc, $"Version {version.Number} : {comment}");
         await db.SaveChangesAsync();
         return Results.Created($"/api/documents/{id}/versions", version.ToDto());
     }
@@ -256,6 +261,7 @@ public static class DocumentEndpoints
 
         // Crée une NOUVELLE version active : l'historique est conservé
         var version = NewVersion(db, doc, stored, source.SizeBytes, user.FullName, $"Restauration de la version {source.Number}");
+        Audit.Add(db, user, "RestoreVersion", doc, $"Version {source.Number} restaurée en version {version.Number}");
         await db.SaveChangesAsync();
         return Results.Ok(version.ToDto());
     }
@@ -269,6 +275,7 @@ public static class DocumentEndpoints
         if (!Access.CanArchive(me, doc)) return Forbidden("Votre rôle ne vous permet pas d'archiver ou de restaurer ce document.");
         doc.IsArchived = archived;
         doc.ArchivedAt = archived ? DateTime.UtcNow : null;
+        Audit.Add(db, me, archived ? "Archive" : "Unarchive", doc);
         await db.SaveChangesAsync();
         return Results.Ok(doc.ToDto(await FavoritesOf(db, me.Id), me));
     }
@@ -284,6 +291,7 @@ public static class DocumentEndpoints
         doc.IsDeleted = true;
         doc.DeletedAt = DateTime.UtcNow;
         doc.DeletedBy = me.FullName;
+        Audit.Add(db, me, "Trash", doc);
         await db.SaveChangesAsync();
         return Results.Ok(doc.ToDto(await FavoritesOf(db, me.Id), me));
     }
@@ -300,6 +308,7 @@ public static class DocumentEndpoints
         doc.IsDeleted = false;
         doc.DeletedAt = null;
         doc.DeletedBy = "";
+        Audit.Add(db, me, "Undelete", doc);
         await db.SaveChangesAsync();
         return Results.Ok(doc.ToDto(await FavoritesOf(db, me.Id), me));
     }
@@ -316,6 +325,7 @@ public static class DocumentEndpoints
         var storedNames = doc.Versions.Select(v => v.StoredFileName).Distinct().ToList();
         db.Favorites.RemoveRange(db.Favorites.Where(f => f.DocumentId == id));
         db.Documents.Remove(doc); // les versions sont supprimées en cascade
+        Audit.Add(db, me, "Purge", doc, $"{doc.Versions.Count} version(s) supprimée(s) définitivement");
         await db.SaveChangesAsync();
 
         foreach (var name in storedNames)
@@ -352,9 +362,12 @@ public static class DocumentEndpoints
     {
         var me = await CurrentUser(u, db);
         var doc = await LoadDoc(db, id, track: false);
-        return me == null || doc == null || !Access.CanSee(me, doc)
-            ? NotFound("Document introuvable.")
-            : Send(doc, doc.CurrentVersion(), files, false);
+        if (me == null || doc == null || !Access.CanSee(me, doc)) return NotFound("Document introuvable.");
+
+        var current = doc.CurrentVersion();
+        Audit.Add(db, me, "Download", doc, $"Version {current.Number}");
+        await db.SaveChangesAsync();
+        return Send(doc, current, files, false);
     }
 
     private static async Task<IResult> DownloadVersion(string id, string versionId, ClaimsPrincipal u, AppDbContext db, FileStorage files)
@@ -362,8 +375,10 @@ public static class DocumentEndpoints
         var me = await CurrentUser(u, db);
         var doc = await LoadDoc(db, id, track: false);
         var version = doc?.Versions.FirstOrDefault(v => v.Id == versionId);
-        return me == null || doc == null || version == null || !Access.CanSee(me, doc)
-            ? NotFound("Version introuvable.")
-            : Send(doc, version, files, true);
+        if (me == null || doc == null || version == null || !Access.CanSee(me, doc)) return NotFound("Version introuvable.");
+
+        Audit.Add(db, me, "Download", doc, $"Version {version.Number}");
+        await db.SaveChangesAsync();
+        return Send(doc, version, files, true);
     }
 }
