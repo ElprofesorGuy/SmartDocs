@@ -23,6 +23,7 @@
                     <Label x:Name="DepartmentLabel" Text="Département RH" Style="{StaticResource Caption}" HorizontalTextAlignment="End" />
                 </VerticalStackLayout>
                 <Grid WidthRequest="44" HeightRequest="44">
+                    <Grid.GestureRecognizers><TapGestureRecognizer Tapped="OnMenuTapped" /></Grid.GestureRecognizers>
                     <Border WidthRequest="40" HeightRequest="40" BackgroundColor="#DBEAFE" Stroke="White" StrokeThickness="2"
                             StrokeShape="RoundRectangle 20" HorizontalOptions="Center" VerticalOptions="Center">
                         <Label x:Name="AvatarLabel" Text="AM" FontFamily="InterBold" FontSize="14" TextColor="{StaticResource PrimaryStrong}"

@@ -11,7 +11,7 @@
         <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
 
             <!-- En-tête -->
-            <Grid Style="{StaticResource TopBar}" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="12" HeightRequest="64" Padding="16,8">
+            <Grid Style="{StaticResource TopBar}" ColumnDefinitions="Auto,*,Auto,Auto,Auto" ColumnSpacing="12" HeightRequest="64" Padding="16,8">
                 <Border WidthRequest="40" HeightRequest="40" BackgroundColor="{StaticResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 10">
                     <Label Text="{x:Static helpers:Icons.FolderSpecial}" Style="{StaticResource Icon}" TextColor="White" FontSize="22" />
                 </Border>
@@ -21,6 +21,9 @@
                 </Label>
                 <Label Grid.Column="3" Text="{x:Static helpers:Icons.Tune}" Style="{StaticResource Icon}" TextColor="{StaticResource TextPrimary}" WidthRequest="36">
                     <Label.GestureRecognizers><TapGestureRecognizer Tapped="OnFilterTapped" /></Label.GestureRecognizers>
+                </Label>
+                <Label Grid.Column="4" Text="{x:Static helpers:Icons.PersonOutline}" Style="{StaticResource Icon}" TextColor="{StaticResource TextPrimary}" WidthRequest="36">
+                    <Label.GestureRecognizers><TapGestureRecognizer Tapped="OnAccountTapped" /></Label.GestureRecognizers>
                 </Label>
             </Grid>
 
@@ -107,7 +110,7 @@
         </Grid>
 
         <!-- Bouton flottant -->
-        <Border HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,16" HeightRequest="52" Padding="22,0"
+        <Border x:Name="Fab" HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,16" HeightRequest="52" Padding="22,0"
                 BackgroundColor="{StaticResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 26">
             <Border.Shadow>
                 <Shadow Brush="#2563EB" Opacity="0.35" Radius="12" Offset="0,4" />

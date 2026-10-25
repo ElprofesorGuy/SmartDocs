@@ -9,18 +9,23 @@ namespace SmartDocs.Views;
 public partial class DocumentsPage : ContentPage
 {
     private readonly DocumentService _docs;
+    private readonly AuthService _auth;
     private string? _category;
     private string? _extension;
     private string _sort = "recent";
     private string? _pendingQuery;
     private bool _loading;
 
-    public DocumentsPage(DocumentService docs)
+    public DocumentsPage(DocumentService docs, AuthService auth)
     {
         InitializeComponent();
         _docs = docs;
+        _auth = auth;
         FieldFocus.Hook(SearchEntry, (Border)SearchEntry.Parent.Parent);
     }
+
+    private async void OnAccountTapped(object? sender, TappedEventArgs e)
+        => await AccountMenu.ShowAsync(this, _auth, _docs);
 
     /// <summary>Reçu depuis la page d'accueil (« //main/documents?q=... »).</summary>
     public string SearchQuery
@@ -28,9 +33,10 @@ public partial class DocumentsPage : ContentPage
         set => _pendingQuery = Uri.UnescapeDataString(value ?? string.Empty);
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
+        Fab.IsVisible = _auth.CurrentUser.CanDeposit;
         _loading = true;
         if (_pendingQuery != null)
         {
@@ -38,6 +44,8 @@ public partial class DocumentsPage : ContentPage
             _pendingQuery = null;
         }
         _loading = false;
+        Reload(); // cache courant (vide après une déconnexion) avant la réponse du serveur
+        await DocumentActions.RefreshAsync(this, _docs);
         Reload();
     }
 
@@ -102,7 +110,7 @@ public partial class DocumentsPage : ContentPage
     private async void OnDownloadClicked(object? sender, EventArgs e)
     {
         var doc = ItemOf(sender);
-        if (doc != null) await DocumentActions.DownloadAsync(this, doc);
+        if (doc != null) await DocumentActions.DownloadAsync(this, doc, _docs);
     }
 
     private async void OnMoreTapped(object? sender, TappedEventArgs e)

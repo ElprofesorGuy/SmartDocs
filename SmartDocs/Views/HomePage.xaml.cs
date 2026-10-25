@@ -16,9 +16,11 @@ public partial class HomePage : ContentPage
         _auth = auth;
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
+        Refresh(); // affiche le cache courant (vide après une déconnexion) : jamais les données du compte précédent
+        await DocumentActions.RefreshAsync(this, _docs);
         Refresh();
     }
 
@@ -26,7 +28,7 @@ public partial class HomePage : ContentPage
     {
         var user = _auth.CurrentUser;
         GreetingLabel.Text = $"Bonjour, {user.FirstName}";
-        DepartmentLabel.Text = user.Department;
+        DepartmentLabel.Text = user.JobTitle;
         AvatarLabel.Text = user.Initials;
 
         DocsCountBadge.Text = _docs.CountActive.ToString();
@@ -37,14 +39,7 @@ public partial class HomePage : ContentPage
     }
 
     private async void OnMenuTapped(object? sender, TappedEventArgs e)
-    {
-        var choice = await DisplayActionSheet("SmartDocs", "Fermer", null, "Se déconnecter");
-        if (choice == "Se déconnecter")
-        {
-            _auth.Logout();
-            await Shell.Current.GoToAsync("//login");
-        }
-    }
+        => await AccountMenu.ShowAsync(this, _auth, _docs);
 
     private async Task GoSearchAsync()
     {

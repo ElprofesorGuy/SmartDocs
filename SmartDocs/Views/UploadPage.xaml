@@ -133,7 +133,7 @@
 
                 <Label x:Name="ErrorLabel" IsVisible="False" TextColor="{StaticResource Danger}" FontSize="12" />
 
-                <controls:AppButton Text="Publier le document" Glyph="{x:Static helpers:Icons.FileUpload}" Clicked="OnPublishClicked" />
+                <controls:AppButton x:Name="PublishButton" Text="Publier le document" Glyph="{x:Static helpers:Icons.FileUpload}" Clicked="OnPublishClicked" />
             </VerticalStackLayout>
         </ScrollView>
     </Grid>

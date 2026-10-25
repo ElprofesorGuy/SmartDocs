@@ -14,6 +14,7 @@ public partial class UploadPage : ContentPage
     private readonly ObservableCollection<string> _tags = new();
     private int _confIndex = 1; // « Interne » par défaut
     private string? _pickedExt;
+    private FileResult? _picked;
     private double _pickedKb;
     private int _progressToken;
 
@@ -28,11 +29,28 @@ public partial class UploadPage : ContentPage
         UpdateConfidentiality();
     }
 
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        var user = _auth.CurrentUser;
+        if (!user.CanDeposit)
+        {
+            await DisplayAlert("Accès restreint",
+                $"Votre rôle ({user.RoleLabel}) ne permet pas de déposer des documents. Seuls les responsables de service et les collaborateurs le peuvent.",
+                "OK");
+            await Shell.Current.GoToAsync("//main/home");
+            return;
+        }
+        // On ne dépose que dans son propre service
+        CategoryPicker.ItemsSource = new[] { user.Department };
+        CategoryPicker.SelectedIndex = 0;
+    }
+
     private async void OnBackTapped(object? sender, TappedEventArgs e) => await Shell.Current.GoToAsync("//main/home");
 
     private async void OnHelpTapped(object? sender, TappedEventArgs e)
         => await DisplayAlert("Aide au dépôt",
-            "Formats acceptés : PDF, DOCX, XLSX (10 Mo maximum).\n\nDans cette démonstration, le fichier est lu pour obtenir son nom et sa taille, mais son contenu n'est pas envoyé : aucun serveur n'existe.",
+            "Formats acceptés : PDF, DOCX, XLSX (10 Mo maximum).\n\nLe fichier est envoyé à l'API SmartDocs lorsque vous touchez « Publier le document ».",
             "OK");
 
     private async void OnBrowseClicked(object? sender, EventArgs e)
@@ -79,6 +97,7 @@ public partial class UploadPage : ContentPage
             }
 
             ErrorLabel.IsVisible = false;
+            _picked = result;
             _pickedExt = ext;
             _pickedKb = bytes / 1024.0;
 
@@ -103,7 +122,7 @@ public partial class UploadPage : ContentPage
         }
     }
 
-    /// <summary>Animation de progression : le fichier est simplement « chargé » en local (rien n'est envoyé).</summary>
+    /// <summary>Animation de chargement local du fichier sélectionné (l'envoi réel a lieu à la publication).</summary>
     private async Task AnimateProgressAsync()
     {
         var token = ++_progressToken;
@@ -114,11 +133,13 @@ public partial class UploadPage : ContentPage
             PickedStatus.Text = $"{i * 10} % chargé";
             await Task.Delay(60);
         }
+        PickedStatus.Text = "Prêt à publier";
     }
 
     private void OnClearFile(object? sender, TappedEventArgs e)
     {
         _progressToken++;
+        _picked = null;
         _pickedExt = null;
         _pickedKb = 0;
         UploadProgress.Progress = 0;
@@ -165,20 +186,33 @@ public partial class UploadPage : ContentPage
 
     private async void OnPublishClicked(object? sender, EventArgs e)
     {
-        if (_pickedExt == null) { ShowError("Sélectionnez d'abord un fichier (PDF, DOCX ou XLSX)."); return; }
+        if (_picked == null || _pickedExt == null) { ShowError("Sélectionnez d'abord un fichier (PDF, DOCX ou XLSX)."); return; }
         if (string.IsNullOrWhiteSpace(NameEntry.Text)) { ShowError("Renseignez le nom du document."); return; }
         if (CategoryPicker.SelectedIndex < 0) { ShowError("Choisissez une catégorie."); return; }
 
         ErrorLabel.IsVisible = false;
-        var category = DocumentService.Categories[CategoryPicker.SelectedIndex];
-        var doc = _docs.AddDocument(NameEntry.Text, category, _pickedExt, _pickedKb,
-            DocumentService.ConfidentialityLevels[_confIndex], _tags, _auth.CurrentUser.FullName);
+        PublishButton.IsEnabled = false;
+        PublishButton.Text = "Envoi en cours…";
+        try
+        {
+            var category = (string)CategoryPicker.SelectedItem;
+            await using var stream = await _picked.OpenReadAsync();
+            var doc = await _docs.AddDocumentAsync(stream, _picked.FileName, NameEntry.Text, category,
+                DocumentService.ConfidentialityLevels[_confIndex], _tags);
 
-        await DisplayAlert("Document publié (simulation)",
-            $"« {doc.Name} » a été ajouté à la liste locale. Le fichier lui-même n'est ni envoyé ni stocké : il faudrait un backend.",
-            "OK");
-        ResetForm();
-        await Shell.Current.GoToAsync("//main/documents");
+            await DisplayAlert("Document publié", $"« {doc.Name} » a été envoyé au serveur.", "OK");
+            ResetForm();
+            await Shell.Current.GoToAsync("//main/documents");
+        }
+        catch (ApiException ex)
+        {
+            ShowError(ex.Message);
+        }
+        finally
+        {
+            PublishButton.IsEnabled = true;
+            PublishButton.Text = "Publier le document";
+        }
     }
 
     private void ResetForm()
