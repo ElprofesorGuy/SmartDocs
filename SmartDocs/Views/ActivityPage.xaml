@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SmartDocs.Views.ActivityPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:SmartDocs.Controls"
+             xmlns:helpers="clr-namespace:SmartDocs.Helpers"
+             xmlns:models="clr-namespace:SmartDocs.Models"
+             BackgroundColor="{StaticResource AppBackground}"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+    <Grid RowDefinitions="Auto,*">
+
+        <Grid Style="{StaticResource TopBar}" ColumnDefinitions="48,*" HeightRequest="60">
+            <Label Text="{x:Static helpers:Icons.ArrowBack}" Style="{StaticResource Icon}" TextColor="{StaticResource TextPrimary}">
+                <Label.GestureRecognizers><TapGestureRecognizer Tapped="OnBackTapped" /></Label.GestureRecognizers>
+            </Label>
+            <Label Grid.Column="1" Text="Journal d'activité" Style="{StaticResource TitleMd}" FontSize="18" VerticalOptions="Center" />
+        </Grid>
+
+        <CollectionView x:Name="ActivityList" Grid.Row="1" SelectionMode="None">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+            </CollectionView.ItemsLayout>
+
+            <CollectionView.Header>
+                <VerticalStackLayout Spacing="12" Padding="16,12,16,12">
+                    <Label x:Name="ScopeLabel" Style="{StaticResource Caption}" FontSize="13" />
+
+                    <Border x:Name="SearchBorder" Style="{StaticResource Field}" HeightRequest="48">
+                        <Grid ColumnDefinitions="44,*">
+                            <Label Text="{x:Static helpers:Icons.Search}" Style="{StaticResource Icon}" FontSize="22" />
+                            <Entry x:Name="SearchEntry" Grid.Column="1" Placeholder="Utilisateur, document ou détail…" Completed="OnSearchCompleted" ReturnType="Search" />
+                        </Grid>
+                    </Border>
+
+                    <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never" Margin="-16,0">
+                        <HorizontalStackLayout x:Name="FilterChips" Spacing="8" Padding="16,0">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:ChipItem">
+                                    <Border BackgroundColor="{Binding Fill}" Stroke="{Binding Outline}" StrokeThickness="1"
+                                            StrokeShape="RoundRectangle 18" Padding="16,0" HeightRequest="36">
+                                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnChipTapped" /></Border.GestureRecognizers>
+                                        <Label Text="{Binding Display}" TextColor="{Binding Foreground}" FontFamily="InterMedium" FontSize="14" VerticalOptions="Center" />
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </HorizontalStackLayout>
+                    </ScrollView>
+                </VerticalStackLayout>
+            </CollectionView.Header>
+
+            <CollectionView.EmptyView>
+                <Label x:Name="EmptyLabel" Text="Aucune activité ne correspond." Style="{StaticResource Muted}" HorizontalTextAlignment="Center" Margin="0,30,0,0" />
+            </CollectionView.EmptyView>
+
+            <CollectionView.Footer>
+                <VerticalStackLayout Padding="16,12,16,24">
+                    <controls:AppButton x:Name="MoreButton" Text="Afficher plus" Glyph="{x:Static helpers:Icons.History}"
+                                        Variant="OutlinePrimary" IsVisible="False" Clicked="OnMoreClicked" />
+                </VerticalStackLayout>
+            </CollectionView.Footer>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:ActivityItem">
+                    <Border Style="{StaticResource Card}" Margin="16,0" Padding="14">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Border WidthRequest="44" HeightRequest="44" BackgroundColor="{Binding Bg}" StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 12" VerticalOptions="Start">
+                                <Label Text="{Binding Glyph}" Style="{StaticResource Icon}" TextColor="{Binding Fg}" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="3">
+                                <Label Text="{Binding ActionLabel}" Style="{StaticResource TitleSm}" FontSize="15" />
+                                <Label Text="{Binding Headline}" IsVisible="{Binding HasHeadline}" FontFamily="InterMedium" FontSize="13" />
+                                <Label Text="{Binding DetailText}" IsVisible="{Binding HasDetail}" Style="{StaticResource Caption}" FontSize="13" />
+                                <Label Text="{Binding WhoText}" Style="{StaticResource Caption}" FontSize="12" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>
