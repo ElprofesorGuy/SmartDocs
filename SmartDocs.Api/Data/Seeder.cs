@@ -62,6 +62,28 @@ public static class Seeder
                 });
             }
             db.Documents.Add(doc);
+
+            // Journal de démonstration : dépôt, mises à jour et archivage, aux dates des versions
+            for (var i = 0; i < versions.Length; i++)
+            {
+                var v = versions[i];
+                db.ActivityLogs.Add(new ActivityLog
+                {
+                    At = v.at,
+                    UserId = i == 0 ? owner?.Id : null,
+                    UserName = i == 0 ? (owner?.FullName ?? ownerLabel) : v.author,
+                    UserRole = i == 0 ? (owner?.Role.ToString() ?? "") : "",
+                    Action = i == 0 ? "Deposit" : "AddVersion",
+                    DocumentId = doc.Id, DocumentName = name, DocumentCategory = cat, Confidentiality = conf,
+                    Details = i == 0 ? $"Niveau {conf}" : $"Version {v.num} : {v.comment}"
+                });
+            }
+            if (archivedAt.HasValue)
+                db.ActivityLogs.Add(new ActivityLog
+                {
+                    At = archivedAt.Value, UserName = ownerLabel, Action = "Archive",
+                    DocumentId = doc.Id, DocumentName = name, DocumentCategory = cat, Confidentiality = conf
+                });
         }
 
         DateTime Ago(double days) => now.AddDays(-days);
@@ -113,6 +135,23 @@ public static class Seeder
         Arch("Avenant_Bail_2021.docx", "Juridique", "docx", 520, new DateTime(2022, 12, 5, 0, 0, 0, DateTimeKind.Utc));
         Arch("Rapport_Annuel_2021.pdf", "Direction", "pdf", Mo(7.4), new DateTime(2022, 6, 30, 0, 0, 0, DateTimeKind.Utc));
         Arch("Paie_Archive_2022.xlsx", "RH", "xlsx", Mo(2.2), new DateTime(2023, 3, 21, 0, 0, 0, DateTimeKind.Utc));
+
+        // ----- Invitations de démonstration (l'inscription se fait uniquement sur invitation) -----
+        void Invite(string code, Role role, string dept, string title)
+        {
+            db.Invitations.Add(new Invitation
+            {
+                Code = code, Role = role, Department = dept, JobTitle = title,
+                CreatedBy = thomas.FullName, CreatedAt = now, ExpiresAt = now.AddDays(365)
+            });
+            db.ActivityLogs.Add(new ActivityLog
+            {
+                At = now, UserId = thomas.Id, UserName = thomas.FullName, UserRole = thomas.Role.ToString(),
+                Action = "InviteCreate", Details = $"{RoleRules.Show(role, dept)}, valable 365 jour(s)"
+            });
+        }
+        Invite("ALPHAFIN25", Role.Collaborator, "Finance", "Collaborateur Finance");
+        Invite("BRAVOINV25", Role.Guest, "", "Prestataire externe");
 
         db.SaveChanges();
     }

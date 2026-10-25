@@ -9,6 +9,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Document> Documents => Set<Document>();
     public DbSet<DocumentVersion> Versions => Set<DocumentVersion>();
     public DbSet<Favorite> Favorites => Set<Favorite>();
+    public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
+    public DbSet<Invitation> Invitations => Set<Invitation>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -22,5 +24,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .OnDelete(DeleteBehavior.Cascade);
         b.Entity<Document>().HasIndex(d => d.IsArchived);
         b.Entity<Document>().HasIndex(d => d.IsDeleted);
+        b.Entity<ActivityLog>().HasIndex(l => l.At);
+        b.Entity<ActivityLog>().HasIndex(l => l.Action);
+        b.Entity<Invitation>().HasIndex(i => i.Code).IsUnique();
+        b.Entity<Invitation>().Property(i => i.Role).HasConversion<string>().HasMaxLength(20);
     }
 }
